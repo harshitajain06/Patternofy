@@ -7,6 +7,7 @@ export default function EquationPage() {
   const navigation = useNavigation();
   const { formula } = route.params;
   const [inputs, setInputs] = useState({});
+  const [result, setResult] = useState(null);
   const variables = formula.match(/[a-z]/g) || [];
 
   const handleChange = (name, value) => {
@@ -15,11 +16,95 @@ export default function EquationPage() {
 
   const calculateResult = () => {
     try {
-      const result = eval(formula.replace(/[a-z]/g, (match) => inputs[match] || 0));
-      alert(`Result: ${result}`);
+      const expr = formula.replace(/[a-z]/g, (match) => inputs[match] || 0);
+      const computedResult = Function('"use strict";return (' + expr + ')')(); // Safer alternative to eval
+      const rows = Math.abs(Math.floor(computedResult)); // Ensure rows are positive
+
+      // Clamp rows to a reasonable range (max of 20 for pattern generation)
+      const clampedRows = Math.min(rows, 20);
+      const pattern = createRandomPattern(clampedRows); // Default to 5 rows if the result is 0
+
+      setResult(computedResult);
+      // Navigate to the ResultScreen with the result and pattern
+      navigation.navigate('ResultScreen', { result: computedResult, pattern });
     } catch (error) {
-      alert('Error calculating result.');
+      alert('Error calculating result. Please check your formula.');
     }
+  };
+
+  // Function to create and select one random pattern
+  const createRandomPattern = (rows) => {
+    const patterns = [];
+
+    // Star Pyramid
+    const pyramid = [];
+    for (let i = 1; i <= rows; i++) {
+      pyramid.push(' '.repeat(rows - i) + '* '.repeat(i).trim());
+    }
+    patterns.push({ title: 'Star Pyramid', pattern: pyramid });
+
+    // Hollow Diamond
+    const hollowDiamond = [];
+    for (let i = 1; i <= rows; i++) {
+      hollowDiamond.push(' '.repeat(rows - i) + (i === 1 ? '*' : '* ' + '  '.repeat(i - 1) + '*'));
+    }
+    for (let i = rows - 1; i > 0; i--) {
+      hollowDiamond.push(' '.repeat(rows - i) + (i === 1 ? '*' : '* ' + '  '.repeat(i - 1) + '*'));
+    }
+    patterns.push({ title: 'Hollow Diamond', pattern: hollowDiamond });
+
+    // Checkerboard Pattern
+    const checkerboard = [];
+    for (let i = 0; i < rows; i++) {
+      checkerboard.push(
+        Array(rows)
+          .fill(null)
+          .map((_, j) => ((i + j) % 2 === 0 ? '*' : ' '))
+          .join(' ')
+      );
+    }
+    patterns.push({ title: 'Checkerboard', pattern: checkerboard });
+
+    // Pascal's Triangle
+    const pascalTriangle = [];
+    for (let i = 0; i < rows; i++) {
+      let row = [];
+      let value = 1;
+      for (let j = 0; j <= i; j++) {
+        row.push(value);
+        value = (value * (i - j)) / (j + 1);
+      }
+      pascalTriangle.push(row.join(' '));
+    }
+    patterns.push({ title: "Pascal's Triangle", pattern: pascalTriangle });
+
+    // Fibonacci Spiral Approximation
+    const fibonacciSpiral = [];
+    let fib1 = 0,
+      fib2 = 1;
+    for (let i = 0; i < rows; i++) {
+      const fibRow = Array(fib2).fill('*').join(' ');
+      fibonacciSpiral.push(fibRow);
+      const nextFib = fib1 + fib2;
+      fib1 = fib2;
+      fib2 = nextFib;
+    }
+    patterns.push({ title: 'Fibonacci Spiral Approximation', pattern: fibonacciSpiral });
+
+    // Concentric Squares
+    const concentricSquares = [];
+    for (let i = 0; i < rows; i++) {
+      const line = '*'.repeat(rows - i) + ' '.repeat(2 * i) + '*'.repeat(rows - i);
+      concentricSquares.push(line);
+    }
+    for (let i = rows - 2; i >= 0; i--) {
+      const line = '*'.repeat(rows - i) + ' '.repeat(2 * i) + '*'.repeat(rows - i);
+      concentricSquares.push(line);
+    }
+    patterns.push({ title: 'Concentric Squares', pattern: concentricSquares });
+
+    // Randomly select one pattern
+    return patterns[Math.floor(Math.random() * patterns.length)];
   };
 
   return (
@@ -53,7 +138,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 30,
     textAlign: 'center',
-    color: '#114111', // Green title for consistency with the theme
+    color: '#114111',
     marginTop: 50,
   },
   inputContainer: {
@@ -75,12 +160,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   button: {
-    backgroundColor: '#114111', // Green button to match the theme
+    backgroundColor: '#114111',
     paddingVertical: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 20,
-    elevation: 3, // Adds shadow to button for iOS/Android
+    elevation: 3,
   },
   buttonText: {
     color: '#fff',
