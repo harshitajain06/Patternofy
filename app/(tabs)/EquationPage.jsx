@@ -59,7 +59,7 @@ export default function EquationPage() {
       checkerboard.push(
         Array(rows)
           .fill(null)
-          .map((_, j) => ((i + j) % 2 === 0 ? '*' : ' '))
+          .map((_, j) => ((i + j) % 2 === 0 ? '*' : ' ')) 
           .join(' ')
       );
     }
@@ -102,6 +102,94 @@ export default function EquationPage() {
       concentricSquares.push(line);
     }
     patterns.push({ title: 'Concentric Squares', pattern: concentricSquares });
+
+    // Cross Pattern
+    const cross = [];
+    for (let i = 0; i < rows; i++) {
+      let row = '';
+      for (let j = 0; j < rows; j++) {
+        if (i === j || i + j === rows - 1) {
+          row += '*';
+        } else {
+          row += ' ';
+        }
+      }
+      cross.push(row);
+    }
+    patterns.push({ title: 'Cross', pattern: cross });
+
+    // Zigzag Pattern
+    const zigzag = [];
+    for (let i = 0; i < rows; i++) {
+      let row = '';
+      for (let j = 0; j < rows; j++) {
+        row += (i + j) % 2 === 0 ? '*' : ' ';
+      }
+      zigzag.push(row);
+    }
+    patterns.push({ title: 'Zigzag', pattern: zigzag });
+
+    // Heart Shape
+    const heart = [];
+    for (let i = 0; i < rows; i++) {
+      let row = '';
+      for (let j = 0; j < rows * 2; j++) {
+        if (
+          (i === 0 && j === rows - 1) ||
+          (i === 1 && (j === rows - 2 || j === rows)) ||
+          (i === 2 && (j === rows - 3 || j === rows + 1)) ||
+          (i === 3 && (j === rows - 4 || j === rows + 2)) ||
+          (i > 3 && i < rows - 1 && (j === rows - i || j === rows + i))
+        ) {
+          row += '*';
+        } else {
+          row += ' ';
+        }
+      }
+      heart.push(row);
+    }
+    patterns.push({ title: 'Heart', pattern: heart });
+
+    // Spiral Pattern
+    const spiral = [];
+    for (let i = 0; i < rows; i++) {
+      let row = '';
+      for (let j = 0; j < rows; j++) {
+        if (i === j || i + j === rows - 1 || i === rows / 2 || j === rows / 2) {
+          row += '*';
+        } else {
+          row += ' ';
+        }
+      }
+      spiral.push(row);
+    }
+    patterns.push({ title: 'Spiral', pattern: spiral });
+
+    // Wave Pattern
+    const wave = [];
+    for (let i = 0; i < rows; i++) {
+      let row = '';
+      for (let j = 0; j < rows; j++) {
+        row += i % 2 === 0 ? '*' : ' ';
+      }
+      wave.push(row);
+    }
+    patterns.push({ title: 'Wave', pattern: wave });
+
+    // Diagonal Lines
+    const diagonal = [];
+    for (let i = 0; i < rows; i++) {
+      let row = '';
+      for (let j = 0; j < rows; j++) {
+        if (i === j) {
+          row += '*';
+        } else {
+          row += ' ';
+        }
+      }
+      diagonal.push(row);
+    }
+    patterns.push({ title: 'Diagonal Lines', pattern: diagonal });
 
     // Randomly select one pattern
     return patterns[Math.floor(Math.random() * patterns.length)];
